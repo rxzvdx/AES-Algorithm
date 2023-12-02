@@ -1,0 +1,22 @@
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+data = b'Unsecured Message'
+
+# ENCRYPTION
+key = get_random_bytes(16) #16 bytes is 128 bits
+cipher = AES.new(key, AES.MODE_EAX)
+ciphertext, tag = cipher.encrypt_and_digest(data)
+nonce = cipher.nonce
+# STORED INFO
+stored_text = nonce + tag + ciphertext
+
+# Print the Original and Encrypted Messages
+print('Original Message:', data)
+print("Encrypted Message:", stored_text)
+
+# DECRYPTION
+cipher = AES.new(key, AES.MODE_EAX, nonce)
+decrypted_data = cipher.decrypt_and_verify(ciphertext, tag)
+
+# Print Decrypted Message
+print("Decrypted Message:", decrypted_data.decode('utf-8'))
