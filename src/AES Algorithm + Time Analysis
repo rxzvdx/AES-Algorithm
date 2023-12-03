@@ -1,0 +1,43 @@
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+import time
+
+def generate_key(key_size):
+    return get_random_bytes(key_size // 8)
+
+def encrypt_file(file_path, key, block_size=16):
+    cipher = AES.new(key, AES.MODE_EAX)
+    with open(file_path, 'rb') as file:
+        plaintext = file.read()
+        start_time = time.time()
+        ciphertext = cipher.encrypt(plaintext)
+        end_time = time.time()
+    return ciphertext, end_time - start_time
+
+def decrypt_file(ciphertext, key, block_size=16):
+    cipher = AES.new(key, AES.MODE_EAX)
+    start_time = time.time()
+    decrypted_text = cipher.decrypt(ciphertext)
+    end_time = time.time()
+    return decrypted_text, end_time - start_time
+
+file_path = 'Users/rxzvdx/AES-Algorithm/video.mp4'
+key_sizes = [128, 192, 256]
+
+for key_size in key_sizes:
+    key = generate_key(key_size)
+    
+    # Encryption
+    ciphertext, encryption_time = encrypt_file(file_path, key)
+    print(f'Encryption with {key_size}-bit key took {encryption_time:.6f} seconds')
+
+    # Decryption
+    decrypted_text, decryption_time = decrypt_file(ciphertext, key)
+    print(f'Decryption with {key_size}-bit key took {decryption_time:.6f} seconds')
+
+    # Verify if decrypted text matches original plaintext
+    with open(file_path, 'rb') as file:
+        original_text = file.read()
+    assert original_text == decrypted_text, "Decryption failed, texts don't match"
+
+    print('-' * 50)
